@@ -65,7 +65,10 @@ function App() {
                 {rutina.ejercicios_recomendados && rutina.ejercicios_recomendados.map((ej, index) => (
                   <li key={index} style={{ marginBottom: '10px' }}>
                     <strong>{ej.name.toUpperCase()}</strong> <br/>
-                    <small>Músculo: {ej.target} | Equipo: {ej.equipment}</small>
+                    <small>Músculo: {ej.target} | Equipo: {ej.equipment}</small><br/>
+                    <span style={{ color: '#007bff', fontWeight: 'bold' }}>
+                      {ej.series} Series x {ej.reps} Reps
+                    </span>
                   </li>
                 ))}
               </ul>
