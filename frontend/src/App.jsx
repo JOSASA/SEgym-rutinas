@@ -57,17 +57,18 @@ function App() {
         </button>
       </form>
 
-      {rutina && (
+      {rutina && rutina.ejercicios_recomendados && (
         <div style={{ marginTop: '20px', border: '1px solid #ccc', padding: '10px' }}>
           <h2>Tu Plan: {rutina.tipo_rutina}</h2>
           <p>{rutina.mensaje}</p>
           <ul>
-            {rutina.ejercicios_recomendados.map((ej, index) => (
-              <li key={index}>
-                <strong>{ej.nombre}</strong> ({ej.equipo}) - {ej.series}x{ej.reps}
-              </li>
-            ))}
-          </ul>
+                {rutina.ejercicios_recomendados && rutina.ejercicios_recomendados.map((ej, index) => (
+                  <li key={index} style={{ marginBottom: '10px' }}>
+                    <strong>{ej.name.toUpperCase()}</strong> <br/>
+                    <small>Músculo: {ej.target} | Equipo: {ej.equipment}</small>
+                  </li>
+                ))}
+              </ul>
         </div>
       )}
     </div>

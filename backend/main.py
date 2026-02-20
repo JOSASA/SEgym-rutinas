@@ -38,32 +38,48 @@ def determinar_distribucion(dias: int, nivel: str):
     return "Full Body" # Default
 
 # --- ENDPOINT PRINCIPAL ---
+# Nota cómo esto ya está pegado al margen izquierdo
 @app.post("/generar-rutina")
 async def generar_rutina(datos: DatosUsuario):
-
-    # 1. Aplicar Reglas de Inferencia
+    
+    # 1. Aplicar Reglas de Inferencia (Tu Sistema Experto)
     distribucion = determinar_distribucion(datos.dias_disponibles, datos.nivel)
-
-    # 2. Conectar con ExerciseDB (Ejemplo simplificado)
-    # NOTA: Necesitas registrarte en RapidAPI para obtener tu 'X-RapidAPI-Key'
-    # url = "https://exercisedb.p.rapidapi.com/exercises"
-    # headers = {
-    # 	"X-RapidAPI-Key": "TU_API_KEY_AQUI",
-    # 	"X-RapidAPI-Host": "exercisedb.p.rapidapi.com"
-    # }
-    # response = requests.get(url, headers=headers)
-    # data = response.json()
-
-    # POR AHORA: Retornamos datos simulados para probar la conexión
-    rutina_generada = {
-        "mensaje": f"Rutina generada para objetivo {datos.objetivo}",
-        "tipo_rutina": distribucion,
-        "ejercicios_recomendados": [
-            {"nombre": "Sentadilla", "equipo": "barbell", "series": 4, "reps": 10},
-            {"nombre": "Press Banca", "equipo": "barbell", "series": 3, "reps": 12}
-        ]
+    
+    # 2. Conectar con ExerciseDB de verdad
+    url = "https://exercisedb.p.rapidapi.com/exercises"
+    
+    headers = {
+        "X-RapidAPI-Key": "be5bf0bfd9msh4943414be429511p1e3b6djsnc493f2b9dac9", # Tu llave
+        "X-RapidAPI-Host": "exercisedb.p.rapidapi.com"
     }
+    
+    try:
+        # Hacemos la petición a la API
+        response = requests.get(url, headers=headers)
+        response.raise_for_status() 
+        todos_los_ejercicios = response.json()
+        
+        # CHISMOSO 1: Ver qué tipo de dato nos llegó
+        print("Tipo de dato recibido:", type(todos_los_ejercicios))
+        
+        # CHISMOSO 2: Imprimir un pedacito de lo que llegó para revisarlo
+        if isinstance(todos_los_ejercicios, list):
+            print("Total de ejercicios recibidos:", len(todos_los_ejercicios))
+        else:
+            print("La API respondió con este mensaje:", todos_los_ejercicios)
+        
+        # 3. QUITAR EL FILTRO TEMPORALMENTE
+        # Solo tomaremos los primeros 5 ejercicios directos de la API
+        ejercicios_filtrados = todos_los_ejercicios[:5] 
 
-    return rutina_generada
+        # 4. Estructurar la respuesta final
+        rutina_generada = {
+            "mensaje": f"Rutina generada exitosamente para objetivo: {datos.objetivo}",
+            "tipo_rutina": distribucion,
+            "ejercicios_recomendados": ejercicios_filtrados
+        }
+        
+        return rutina_generada
 
-# Para correr el server: uvicorn main:app --reload
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=500, detail=f"Error al conectar con la API: {str(e)}")
